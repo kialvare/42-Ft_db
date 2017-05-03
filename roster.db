@@ -1,0 +1,15 @@
+*,key|int,fname|char,lname|char,age|int,course_id|int
+**,4
+2,Couch,Potato,42,2
+4,Forty,Two,42,1
+7,Couch,Potato,42,1
+8,Forty,Two,42,1
+9,potato,Alvarez,21,1
+11,Couch,Potato,42,1
+12,Forty,Two,42,1
+5,potato,Alvarez,21,1
+10,Kim,There,42,1
+1,Kim,Alvarez,21,1
+22,Kim,There,12,1
+1234,ken,ken,21,1
+1235,ken,ben,36,1

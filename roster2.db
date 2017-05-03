@@ -1,0 +1,8 @@
+*,key|int,course_name|int
+**,2
+2,physics
+3,Neural_Networks
+4,Biology
+1,Dumb
+12,crime
+123,basic
