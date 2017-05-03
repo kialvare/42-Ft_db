@@ -6,7 +6,7 @@
 /*   By: kcheung <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/18 15:31:05 by kcheung           #+#    #+#             */
-/*   Updated: 2017/05/03 11:46:54 by kcheung          ###   ########.fr       */
+/*   Updated: 2017/05/03 12:47:13 by kcheung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,14 +19,12 @@ int open_record(char *filename);
 int open_record_delete(char *filename);
 void close_record(int fd);
 off_t find_record(int fd, char *key);
-int *select_record(char **col, t_table *table, char *Constraint);
-int delete_record(int fd, char *key);
 t_col *new_header(char *name);
 t_col *lstadd_header(t_col *head, char *name);
 t_tree *new_data(int row, char *value);
 t_tree *lstadd_data(t_col *col, t_tree *head, int row, char *val);
 t_table *build_table(int fd);
-t_table *build_table_constraint(int fd, int *row_list);
+t_table *build_table_constraint(int fd, char *constraint);
 void print_table(t_table table);
 t_fields *create_field(char *name);
 t_fields *add_field(t_fields *head, char *col_name);
@@ -34,6 +32,7 @@ t_fields *build_record(t_table table);
 void free_fields(t_fields *head);
 int insert_record(int fd, t_fields *record);
 int handle_insert(int argc, char **argv);
+int delete_record(int fd, char *key);
 int handle_delete(int argc, char **argv);
 char *scan_for_file(char *command, char **argv);
 char **parse_col_list(char **argv);
@@ -43,6 +42,7 @@ int valid_column(char **col_list, t_table table);
 void print_record(int fd, int *row_list, char **col_list, t_table table);
 char **is_aggregate(char **col_list);
 void print_aggregate(t_table *table, char **aggr_list);
+int *select_record(char **col, t_table *table, char *Constraint);
 int handle_select(int argc, char **argv);
 char *get_constraint(char **argv);
 char *get_set(char **argv);
@@ -266,6 +266,71 @@ t_table	*build_table(int fd)
 	lseek(fd, 0, SEEK_SET);
 	return (table);
 }
+
+/* t_table	*build_table_constraint(int fd, char *constraint) */
+/* { */
+/* 	t_table	*table; */
+/* 	char	*line; */
+/* 	char	**array; */
+/* 	int		ret; */
+/* 	int		row; */
+/* 	t_col	*iter_h; */
+/* 	t_col	*temp_col; */
+/* 	char	**const_array; */
+/* 	int		constraint_index; */
+/*  */
+/* 	ret = 0; */
+/* 	constraint_index = 0; */
+/* 	table = (t_table*)malloc(sizeof(t_table)); */
+/* 	#<{(| setting meta data |)}># */
+/* 	table->header = NULL; */
+/* 	get_next_line(fd, &line); */
+/* 	array = lsh_split_line(line, ","); */
+/* 	array++; */
+/* 	while (*array) //setup headers */
+/* 	{ */
+/* 		table->header = lstadd_header(table->header, *array); */
+/* 		array++; */
+/* 	} */
+/* 	get_next_line(fd, &line); */
+/* 	array = lsh_split_line(line, ","); */
+/* 	table->col_count = ft_atoi(array[1]); */
+/* 	row = 3; */
+/* 	const_array = lsh_split_line(constraint, "=><"); // split constraint and check against tables header */
+/* 	temp_col = table->header; */
+/* 	while (ft_strcmp(temp_col->name, array[0])) */
+/* 	{ */
+/* 		constraint_index++; */
+/* 		temp_col = temp_col->next; */
+/* 	} */
+/* 	#<{(| Setting Column data |)}># */
+/* 	while ((ret = get_next_line(fd, &line)) != -1) */
+/* 	{ */
+/* 		if (ret == 0) */
+/* 		{ */
+/* 			lseek(fd, 0, SEEK_SET); */
+/* 			return (table); */
+/* 		} */
+/* 		iter_h = table->header; */
+/* 		array = lsh_split_line(line, ","); */
+/* 		if (!ft_strcmp(array[constraint_index], const_array[1])) */
+/* 		{ */
+/* 			if (ft_atoi(*array)) */
+/* 			{ */
+/* 				table->next_key = ft_atoi(*array) + 1; */
+/* 				while (*array) */
+/* 				{ */
+/* 					iter_h->data = lstadd_data(iter_h, iter_h->data, row, *array); */
+/* 					array++; */
+/* 					iter_h = iter_h->next; */
+/* 				} */
+/* 			} */
+/* 		} */
+/* 		row++; */
+/* 	} */
+/* 	lseek(fd, 0, SEEK_SET); */
+/* 	return (table); */
+/* } */
 
 void	print_table(t_table table)
 {
@@ -669,6 +734,7 @@ void	print_record(int fd, int *row_list, char **col_list, t_table table)
 }
 
 /* Handling Aggregate Functions */
+
 char	**is_aggregate(char **col_list)
 {
 	char	**array;
@@ -777,7 +843,10 @@ int		handle_select(int argc, char **argv)
 		if((fd = open_record(file)) == -1)
 			return (0);
 		col_list = parse_col_list(argv);
-		table = build_table(fd);
+		/* if (!constraint) */
+			table = build_table(fd);
+		/* else */
+		/* 	table = build_table_constraint(fd); */
 		/* print_table(*table); */
 		row_list = select_record(col_list, table, constraint); // return list of rows in the data file that satisfy constraint
 		/* validate_column_list(table, col_list); */
@@ -806,6 +875,8 @@ char	*get_constraint(char **argv)
 	constraint = NULL;
 	while (argv[i] && ft_strcmp(argv[i], "where"))
 		i++;
+	if (!argv[i])
+		return (constraint);
 	i++;
 	if (argv[i])
 		constraint = argv[i];
