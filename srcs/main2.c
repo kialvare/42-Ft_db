@@ -6,7 +6,7 @@
 /*   By: kcheung <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/18 15:31:05 by kcheung           #+#    #+#             */
-/*   Updated: 2017/05/03 11:38:26 by kcheung          ###   ########.fr       */
+/*   Updated: 2017/05/03 11:45:03 by kcheung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ int		argc_len(char **argv)
 	return (count);
 }
 
-/* Database Commands */
+/* file-reading */
 int		open_record(char *filename)
 {
 	int fd;
@@ -113,7 +113,6 @@ void	close_record(int fd)
 /* find_record(int fd, char *key): */
 /* Reads from fd. If record with key is found the position of the beginning is returned. */
 /* If record is not found, -1 is returned. */
-
 off_t	find_record(int fd, char *key)
 {
 	printf("searching record...\n");
@@ -139,90 +138,6 @@ off_t	find_record(int fd, char *key)
 		pos = lseek(fd, 0, SEEK_CUR);
 	}
 	return (-1);
-}
-
-
-/* Should Return a list of Row # that satisfy Constraints
- * If Constrain is NULL all row numbers with data is returned */
-int		*select_record(char **col, t_table *table, char *Constraint)
-{
-	int		*rows;
-	t_tree	*temp;
-	t_col	*temp_col;
-	int		i;
-	char	**array;
-	/* char	op; */
-
-	/* valid_col(col, table); */
-	i = 0;
-	rows = (int *)malloc(sizeof(int) * table->header->count + 1);
-	if (Constraint)
-	{
-		temp_col = table->header;
-		/* if(ft_strchr(Constraint, '=')) */ 						// Not yet implemented: for comparing constraints
-		/* 	op = '='; */
-		/* if(ft_strchr(Constraint, '>')) */
-		/* 	op = '>'; */
-		/* if(ft_strchr(Constraint, '<')) */
-		/* 	op = '<'; */
-		array = lsh_split_line(Constraint, "=><");
-		while (ft_strcmp(temp_col->name, array[0]))
-			temp_col = temp_col->next;
-		temp = temp_col->data;
-		while (temp)
-		{
-			if (!ft_strcmp((*temp).value, array[1]))
-			{
-				rows[i] = (*temp).row;
-				i++;
-			}
-			temp = temp->next;
-		}
-		rows[i] = 0;
-	}
-	else
-	{
-		temp = table->header->data;
-		while (temp)
-		{
-			rows[i] = (*temp).row;
-			temp = temp->next;
-			i++;
-		}
-		rows[i] = 0;
-	}
-	(void)col;
-	return (rows);
-}
-
-int		delete_record(int fd, char *key)
-{
-	printf("deleting...\n");
-	int		ret;
-	char	*line;
-	char	**array;
-	int		delete_bytes;
-	off_t	pos;
-	
-	pos = lseek(fd, 0, SEEK_SET);								//resets the fd position
-	while ((ret = get_next_line(fd, &line)) != -1)
-	{
-		delete_bytes = ft_strlen(line);
-		array = lsh_split_line(line, ",");
-		if (ret == 0)
-			return (ret);
-		else if (!ft_strcmp(key, array[0]))
-		{
-			pos = lseek(fd, 0, SEEK_CUR);
-			pos = lseek(fd, pos - delete_bytes - 1, SEEK_SET);
-			printf("deleting [%d] bytes\n", delete_bytes);
-			ft_bzero(line, delete_bytes);
-			ret = write(fd, &line, delete_bytes);
-			return (ret);
-		}
-		pos = lseek(fd, 0, SEEK_CUR);
-	}
-	return (ret);
 }
 
 /* Create Table Structure */
@@ -572,6 +487,37 @@ int		handle_insert(int argc, char **argv)
 }
 
 /* DELETE SQL Command*/
+
+int		delete_record(int fd, char *key)
+{
+	printf("deleting...\n");
+	int		ret;
+	char	*line;
+	char	**array;
+	int		delete_bytes;
+	off_t	pos;
+	
+	pos = lseek(fd, 0, SEEK_SET);								//resets the fd position
+	while ((ret = get_next_line(fd, &line)) != -1)
+	{
+		delete_bytes = ft_strlen(line);
+		array = lsh_split_line(line, ",");
+		if (ret == 0)
+			return (ret);
+		else if (!ft_strcmp(key, array[0]))
+		{
+			pos = lseek(fd, 0, SEEK_CUR);
+			pos = lseek(fd, pos - delete_bytes - 1, SEEK_SET);
+			printf("deleting [%d] bytes\n", delete_bytes);
+			ft_bzero(line, delete_bytes);
+			ret = write(fd, &line, delete_bytes);
+			return (ret);
+		}
+		pos = lseek(fd, 0, SEEK_CUR);
+	}
+	return (ret);
+}
+
 int		handle_delete(int argc, char **argv)
 {
 	int	fd;
@@ -591,7 +537,6 @@ int		handle_delete(int argc, char **argv)
 
 /* SELECT SQL Command*/
 
-/* Working Backup */
 char	*scan_for_file(char *command, char **argv)
 {
 	int			i;
@@ -633,6 +578,7 @@ char	*scan_for_file(char *command, char **argv)
 /* 	} */
 /* 	return (file_list); */
 /* } */
+
 
 char	**parse_col_list(char **argv)
 {
@@ -816,6 +762,59 @@ void	print_aggregate(t_table *table, char **aggr_list)
 		printf("%d\n", iter_c->sum);
 	else if (!ft_strcmp(aggr_list[0],"avg"))
 		printf("%d\n", iter_c->avg);
+}
+
+/* Should Return a list of Row # that satisfy Constraints
+ * If Constrain is NULL all row numbers with data is returned */
+int		*select_record(char **col, t_table *table, char *Constraint)
+{
+	int		*rows;
+	t_tree	*temp;
+	t_col	*temp_col;
+	int		i;
+	char	**array;
+	/* char	op; */
+
+	/* valid_col(col, table); */
+	i = 0;
+	rows = (int *)malloc(sizeof(int) * table->header->count + 1);
+	if (Constraint)
+	{
+		temp_col = table->header;
+		/* if(ft_strchr(Constraint, '=')) */ 						// Not yet implemented: for comparing constraints
+		/* 	op = '='; */
+		/* if(ft_strchr(Constraint, '>')) */
+		/* 	op = '>'; */
+		/* if(ft_strchr(Constraint, '<')) */
+		/* 	op = '<'; */
+		array = lsh_split_line(Constraint, "=><");
+		while (ft_strcmp(temp_col->name, array[0]))
+			temp_col = temp_col->next;
+		temp = temp_col->data;
+		while (temp)
+		{
+			if (!ft_strcmp((*temp).value, array[1]))
+			{
+				rows[i] = (*temp).row;
+				i++;
+			}
+			temp = temp->next;
+		}
+		rows[i] = 0;
+	}
+	else
+	{
+		temp = table->header->data;
+		while (temp)
+		{
+			rows[i] = (*temp).row;
+			temp = temp->next;
+			i++;
+		}
+		rows[i] = 0;
+	}
+	(void)col;
+	return (rows);
 }
 
 int		handle_select(int argc, char **argv)
