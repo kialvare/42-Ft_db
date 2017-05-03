@@ -6,7 +6,7 @@
 /*   By: kcheung <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/18 15:31:05 by kcheung           #+#    #+#             */
-/*   Updated: 2017/05/03 11:45:03 by kcheung          ###   ########.fr       */
+/*   Updated: 2017/05/03 11:46:54 by kcheung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,66 +267,6 @@ t_table	*build_table(int fd)
 	return (table);
 }
 
-/* Beta */
-/* t_table	*build_table_constraint(int fd, int *row_list) */
-/* { */
-/* 	t_table	*table; */
-/* 	char	*line; */
-/* 	char	**array; */
-/* 	int		ret; */
-/* 	int		row; */
-/* 	t_col	*iter_h; */
-/* 	int		i; */
-/*  */
-/* 	ret = 0; */
-/* 	table = (t_table*)malloc(sizeof(t_table)); */
-/*  */
-/* 	#<{(| setting meta data |)}># */
-/* 	table->header = NULL; */
-/* 	get_next_line(fd, &line); */
-/* 	array = lsh_split_line(line, ","); */
-/* 	array++; */
-/* 	while (*array) */
-/* 	{ */
-/* 		table->header = lstadd_header(table->header, *array); */
-/* 		array++; */
-/* 	} */
-/* 	get_next_line(fd, &line); */
-/* 	array = lsh_split_line(line, ","); */
-/* 	table->col_count = ft_atoi(array[1]); */
-/* 	row = 3; */
-/* 	i = 0; */
-/* 	#<{(| Setting Column data |)}># */
-/* 	while (row_list[i] && (ret = get_next_line(fd, &line)) != -1) */
-/* 	{ */
-/* 		if (ret == 0) */
-/* 		{ */
-/* 			lseek(fd, 0, SEEK_SET); */
-/* 			return (table); */
-/* 		} */
-/* 		if (row == row_list[i]) */
-/* 		{ */
-/* 			iter_h = table->header; */
-/* 			array = lsh_split_line(line, ","); */
-/* 			if (**array != '*') */
-/* 			#<{(| if (ft_atoi(*array)) |)}># */
-/* 			{ */
-/* 				table->next_key = ft_atoi(*array) + 1; */
-/* 				while (*array) */
-/* 				{ */
-/* 					iter_h->data = lstadd_data(iter_h, iter_h->data, row, *array); */
-/* 					array++; */
-/* 					iter_h = iter_h->next; */
-/* 				} */
-/* 			} */
-/* 			i++; */
-/* 		} */
-/* 		row++; */
-/* 	} */
-/* 	lseek(fd, 0, SEEK_SET); */
-/* 	return (table); */
-/* } */
-
 void	print_table(t_table table)
 {
 	printf("=============Printing Table=========\n");
@@ -578,7 +518,6 @@ char	*scan_for_file(char *command, char **argv)
 /* 	} */
 /* 	return (file_list); */
 /* } */
-
 
 char	**parse_col_list(char **argv)
 {
