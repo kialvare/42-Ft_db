@@ -6,7 +6,7 @@
 #    By: kcheung <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2017/02/27 11:10:05 by kcheung           #+#    #+#              #
-#    Updated: 2017/04/28 09:02:44 by kcheung          ###   ########.fr        #
+#    Updated: 2017/05/03 14:58:20 by kcheung          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,14 @@ LIB = $(LIB_DIR)/libft.a
 LIB_LINK = -L $(LIB_DIR) -lft
 
 SRC_DIR = ./srcs/
-SRC_NAME = main2.c
+SRC_NAME = main2.c \
+		   handle_insert.c \
+		   handle_delete.c \
+		   handle_select.c \
+		   handle_update.c \
+		   build_table.c \
+		   build_record.c \
+		   minishell.c
 SRCS = $(addprefix $(SRC_DIR), $(SRC_NAME))
 
 OBJ_DIR = ./obj/
