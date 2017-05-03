@@ -6,7 +6,7 @@
 /*   By: kcheung <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/18 15:31:05 by kcheung           #+#    #+#             */
-/*   Updated: 2017/05/02 22:33:22 by kcheung          ###   ########.fr       */
+/*   Updated: 2017/05/03 11:31:08 by kcheung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -337,8 +337,7 @@ t_table	*build_table(int fd)
 		}
 		iter_h = table->header;
 		array = lsh_split_line(line, ",");
-		if (**array != '*')
-		/* if (ft_atoi(*array)) */
+		if (ft_atoi(*array))
 		{
 			table->next_key = ft_atoi(*array) + 1;
 			while (*array)
@@ -939,7 +938,6 @@ void	set_print_record(int fd, int fd_a, int *row_list, char **col_list, t_table 
 		free(line);
 		row_list++;
 	}
-	printf("end\n");
 }
 
 /* update roster.db set fname=potato where fname=kim */
