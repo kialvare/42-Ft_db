@@ -1,4 +1,4 @@
-*,key|int,fname|char,lname|char,age|int,course_id|int
+*,key|int,fname|char*,lname|char*,age|int,course_id|int
 **,4
 2,Couch,Potato,42,2
 4,Forty,Two,42,1
@@ -13,3 +13,4 @@
 22,Kim,There,12,1
 1234,ken,ken,21,1
 1235,ken,ben,36,1
+1236,ken,ben,42,42

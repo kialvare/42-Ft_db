@@ -6,7 +6,7 @@
 /*   By: kcheung <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/04/18 15:31:05 by kcheung           #+#    #+#             */
-/*   Updated: 2017/05/03 12:47:13 by kcheung          ###   ########.fr       */
+/*   Updated: 2017/05/03 14:36:23 by kcheung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,13 +24,13 @@ t_col *lstadd_header(t_col *head, char *name);
 t_tree *new_data(int row, char *value);
 t_tree *lstadd_data(t_col *col, t_tree *head, int row, char *val);
 t_table *build_table(int fd);
-t_table *build_table_constraint(int fd, char *constraint);
 void print_table(t_table table);
 t_fields *create_field(char *name);
 t_fields *add_field(t_fields *head, char *col_name);
 t_fields *build_record(t_table table);
 void free_fields(t_fields *head);
 int insert_record(int fd, t_fields *record);
+void check_input(t_table table, char **input);
 int handle_insert(int argc, char **argv);
 int delete_record(int fd, char *key);
 int handle_delete(int argc, char **argv);
@@ -53,6 +53,7 @@ int sql(char *op, char **argv, char *line);
 char **lsh_split_line(char *line, const char *delim);
 int sql_execute(char **args, char *line);
 char *lsh_read_line(void);
+t_table *build_table_constraint(int fd, char *constraint);
 char **scan_for_file_multi(char *command, char **argv);
 unsigned int assign_key(t_table table);
 char **parse_values(char **values);
@@ -452,6 +453,28 @@ int		insert_record(int fd, t_fields *record)
 	return (ret);
 }
 
+void	check_input(t_table table, char **input)
+{
+	t_col	*iter_c;
+	int		i;
+
+	i = 1;
+	iter_c = table.header;
+	iter_c = iter_c->next;
+	while (iter_c)
+	{
+		if (!ft_strcmp(iter_c->type, "int") &&
+				(ft_atoi(input[i]) == 0 && ft_strcmp(input[i], "0")))
+		{
+			printf("Incorrect input:(%s)\n",input[i]);
+			printf("Incorrect input type for (%sn) Need:(%s)\n", iter_c->name, iter_c->type);
+			exit(-1);
+		}
+		i++;
+		iter_c = iter_c->next;
+	}
+}
+
 int		handle_insert(int argc, char **argv)
 {
 	int			fd;
@@ -471,6 +494,7 @@ int		handle_insert(int argc, char **argv)
 		table = build_table(fd);
 		/* print_table(*table); */
 		array = lsh_split_line(argv[3], ",()");
+		check_input(*table, array);
 		record = build_record(*table);
 		iter_f = record;
 		while (iter_f)
