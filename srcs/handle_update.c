@@ -6,7 +6,7 @@
 /*   By: kcheung <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/03 14:44:01 by kcheung           #+#    #+#             */
-/*   Updated: 2017/05/03 14:45:24 by kcheung          ###   ########.fr       */
+/*   Updated: 2017/05/03 17:22:54 by kcheung          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,12 @@ char	*get_set(char **argv)
 void	update_fields(t_fields *rec, char **con_array, char **array, t_table table)
 {
 	t_fields	*iter_f;
+	t_col		*iter_c;
 	int			i;
 
+	iter_c = table.header;
+	while (iter_c && ft_strcmp(iter_c->name, con_array[0]))
+		iter_c = iter_c->next;
 	iter_f = rec;
 	i = 0;
 	while (iter_f)
@@ -59,6 +63,11 @@ void	update_fields(t_fields *rec, char **con_array, char **array, t_table table)
 			iter_f->value = con_array[1];
 		else
 			iter_f->value = array[i];
+		if (!ft_strcmp(iter_c->type, "int") && (!atoi(iter_f->value) && ft_strcmp(iter_f->value, "0")))
+		{
+			printf("Invalid type for (%s). Need (%s)\n", iter_c->name, iter_c->type);
+			exit(-2);
+		}
 		i++;
 		iter_f = iter_f->next;
 	}
